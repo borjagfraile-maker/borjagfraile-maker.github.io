@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Globo Estratégico | Silos ICBM y Centros de Mando</title>
+    <title>Globo Estratégico | Silos ICBM, Centros de Mando y Ciudades Globales</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
             font-family: system-ui, sans-serif;
         }
-        /* No se muestran menús ni paneles */
         .ui-hidden {
             display: none !important;
         }
-        /* El loader solo es visible al inicio, luego desaparece */
         .loader {
             position: absolute;
             top: 50%;
@@ -32,10 +30,28 @@
             white-space: nowrap;
             transition: opacity 0.5s;
         }
+        /* Tooltip para ciudades */
+        .city-tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            pointer-events: none;
+            z-index: 100;
+            white-space: nowrap;
+            border-left: 3px solid #ffaa44;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transition: opacity 0.2s;
+        }
     </style>
 </head>
 <body>
     <div id="loader" class="loader">🌍 Cargando datos geoestratégicos...</div>
+    <div id="city-tooltip" class="city-tooltip" style="opacity:0;"></div>
 
     <script type="importmap">
         {
@@ -50,6 +66,7 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { initSilosAndCommandCenters } from './silos.js';
+        import { addCitiesToScene } from './cities.js';
 
         // ---------- CONFIGURACIÓN GLOBO ----------
         const scene = new THREE.Scene();
@@ -154,7 +171,7 @@
             obj.quaternion.copy(quaternion);
         }
         
-        // ========== BORDES GEOGRÁFICOS: AZUL SUAVE UNIFORME ==========
+        // ========== BORDES GEOGRÁFICOS ==========
         const UNIFORM_BORDER_COLOR = 0x6c8fc7;
         
         function addBorder(ring, color) {
@@ -194,6 +211,9 @@
         
         // Inicializar silos, centros de mando e interacción (hover)
         initSilosAndCommandCenters(scene, geoToVector3, alignToNorth, camera, renderer.domElement);
+        
+        // Inicializar ciudades (puntos de población)
+        addCitiesToScene(scene, geoToVector3, camera, renderer.domElement);
         
         // Animación de estrellas
         function animateStars() {
